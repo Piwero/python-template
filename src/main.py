@@ -1,4 +1,4 @@
-def main():
+def main() -> str:
     return "Hello from python-template!"
 
 

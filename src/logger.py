@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -13,7 +13,7 @@ class LoggerConfig(BaseModel):
 
     @model_validator(mode='before')
     @classmethod
-    def validate_log_level(cls, values):
+    def validate_log_level(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         log_level = values.get("log_level")
         valid_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         if log_level not in valid_levels:
@@ -21,22 +21,18 @@ class LoggerConfig(BaseModel):
         return values
 
 
-def setup_logger(config: LoggerConfig):
+def setup_logger(config: LoggerConfig) -> logging.Logger:
     logger = logging.getLogger()
     logger.setLevel(config.log_level)
-
     formatter = logging.Formatter(config.log_format)
-
     if config.console_log:
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
-
     if config.log_file:
         file_handler = logging.FileHandler(config.log_file)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
-
     return logger
 
 
@@ -47,4 +43,3 @@ logger_config = LoggerConfig(
 )
 
 logger = setup_logger(logger_config)
-
