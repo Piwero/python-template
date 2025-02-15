@@ -25,6 +25,7 @@ jobs:
           # Extract the python version from pyproject.toml
           PYTHON_VERSION=$(grep 'python' pyproject.toml | awk -F ' = ' '{print $2}' | tr -d '"')
           echo "PYTHON_VERSION=${requires-python}" >> $GITHUB_ENV
+          cat $GITHUB_ENV
 
       - name: Set up Python
         uses: actions/setup-python@v5
