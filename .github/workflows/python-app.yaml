@@ -25,7 +25,6 @@ jobs:
           # Extract the python version from pyproject.toml
           PYTHON_VERSION=$(cat .python-version)
           echo "PYTHON_VERSION=${PYTHON_VERSION}" >> $GITHUB_ENV
-          cat $GITHUB_ENV  # Optional: for debugging
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -39,13 +38,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv venv 
-          uv pip install ".[dev]"
+          uv sync
 
       - name: Run linters
         run: |
-          ruff .
-          mypy .
+          uv run ruff .
+          uv run mypy .
 
       - name: Test with pytest
         run: |
