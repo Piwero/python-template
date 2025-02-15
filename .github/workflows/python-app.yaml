@@ -2,39 +2,50 @@ name: Python application
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - main
 
 permissions:
   contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: "3.13"
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Install UV required-version defined in pyproject.toml
-      uses: astral-sh/setup-uv@v5
-      with:
-        pyproject-file: "./pyproject.toml"
+      - name: Read Python version from pyproject.toml
+        id: get-python-version
+        run: |
+          # Extract the python version from pyproject.toml
+          PYTHON_VERSION=$(grep 'python' pyproject.toml | awk -F ' = ' '{print $2}' | tr -d '"')
+          echo "PYTHON_VERSION=${requires-python}" >> $GITHUB_ENV
 
-    - name: Install dependencies
-      run: |
-        uv venv 
-        uv pip install ".[dev]"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Run linters
-      run: |
-        ruff .
-        mypy .
+      - name: Install UV required-version defined in pyproject.toml
+        uses: astral-sh/setup-uv@v5
+        with:
+          pyproject-file: "./pyproject.toml"
 
-    - name: Test with pytest
-      run: |
-           uv run  pytest
+      - name: Install dependencies
+        run: |
+          uv venv 
+          uv pip install ".[dev]"
+
+      - name: Run linters
+        run: |
+          ruff .
+          mypy .
+
+      - name: Test with pytest
+        run: |
+          uv run pytest
